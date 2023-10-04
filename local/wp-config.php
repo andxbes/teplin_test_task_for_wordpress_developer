@@ -83,7 +83,7 @@ if (WP_DEBUG) {
 }
 define('FS_METHOD', "direct");
 // define('DISABLE_WP_CRON', true);
-// define('ALTERNATE_WP_CRON', true);
+define('ALTERNATE_WP_CRON', true);
 
 
 /* Add any custom values between this line and the "stop editing" line. */
