@@ -4,3 +4,4 @@ public/wp-content/uploads/*
 debug.log
 
 
+public/wp-content/db.php
