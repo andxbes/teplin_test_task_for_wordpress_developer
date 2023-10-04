@@ -1,0 +1,73 @@
+version: "3.4"
+
+networks:
+  teplin:
+    driver: bridge
+
+services:
+  mariadb:
+    image: docker.io/bitnami/mariadb:10.6
+    restart: unless-stopped
+    networks:
+      - teplin
+    env_file: .env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DATABASE_NAME}
+      MARIADB_USER: ${DATABASE_USERNAME}
+      MARIADB_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mariadb_data:/bitnami/mariadb"
+      - "./bd:/docker-entrypoint-initdb.d"
+  phpmyadmin:
+    image: bitnami/phpmyadmin:latest
+    restart: unless-stopped
+    networks:
+      - teplin
+    env_file: .env
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_USER: ${DATABASE_ROOT_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      DATABASE_ALLOW_NO_PASSWORD: false
+      PHPMYADMIN_ALLOW_ARBITRARY_SERVER: yes
+    ports:
+      - "88:8080"
+  phpfpm:
+    image: "bitnami/php-fpm:8.1"
+    restart: unless-stopped
+    working_dir: /app
+    networks:
+      - teplin
+    ports:
+      - "9000:9000"
+      - "9111:9111"
+    volumes:
+      - ./php/custom.ini:/opt/bitnami/php/etc/conf.d/custom.ini:cached
+      - ./php-fpm.d/www.conf:/opt/bitnami/php/etc/php-fpm.d/www.conf:cached
+      - ./public:/app:default
+      - ./local/wp-config.php:/app/wp-config.php:cached
+
+  nginx:
+    image: "bitnami/nginx:latest"
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - phpfpm
+    networks:
+      - teplin
+    ports:
+      - "80:80"
+      # - '443:443'
+    volumes:
+      - ./nginx/server_block.conf:/opt/bitnami/nginx/conf/server_blocks/yourapp.conf:cached
+    volumes_from:
+      - phpfpm
+
+volumes:
+  mariadb_data:
+    driver: local
+  php-data:
+    driver: local

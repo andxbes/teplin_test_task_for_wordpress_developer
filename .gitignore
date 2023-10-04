@@ -1,0 +1,6 @@
+public/wp-content/uploads/*
+!public/wp-content/uploads/import/
+!public/wp-content/uploads/woocommerce-*.png
+debug.log
+
+
