@@ -32,6 +32,7 @@ class ImportProductsViaCron
     {
         require_once("worker.php");
         if (class_exists('\IPVC\Worker')) {
+            error_log('run process');
             new \IPVC\Worker();
         }
     }

@@ -170,9 +170,7 @@ class Product
                 $product = new \WC_Product_Variable();
                 $product->set_sku($this->sku);
             }
-            error_log($this->title);
             $product->set_name($this->title);
-
             $product->set_description($this->description);
             $product->set_regular_price($this->price);
             $product->set_sale_price($this->sale);
@@ -251,7 +249,7 @@ class Product
 
         if (!$attribute_id) {
             $attribute_id = wc_create_attribute(array(
-                'name' => $name,
+                'name' =>  $name,
                 'slug' => sanitize_title($name),
                 'type' => 'select', // или 'text' в зависимости от типа атрибута
                 'order_by' => 'menu_order',
@@ -268,6 +266,7 @@ class Product
         $attribute->set_position(1);
         $attribute->set_visible(true);
         $attribute->set_variation(true);
+
         return $attribute;
     }
 }

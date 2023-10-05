@@ -85,6 +85,11 @@ define('FS_METHOD', "direct");
 // define('DISABLE_WP_CRON', true);
 define('ALTERNATE_WP_CRON', true);
 
+define('WP_MEMORY_LIMIT', '1024M');
+ini_set('memory_limit', '1024M');
+
+
+
 
 /* Add any custom values between this line and the "stop editing" line. */
 /* That's all, stop editing! Happy publishing. */
