@@ -162,16 +162,20 @@ class Product
     public function save()
     {
         if (function_exists('WC')) {
-            if (!empty($product_id =  wc_get_product_id_by_sku($this->sku))) {
-                $product = wc_get_product($product_id);
+            if (
+                !empty($product_id = wc_get_product_id_by_sku($this->sku))
+                && ($product = wc_get_product($product_id)) instanceof \WC_Product_Variable
+            ) {
             } else {
                 $product = new \WC_Product_Variable();
                 $product->set_sku($this->sku);
             }
+            error_log($this->title);
             $product->set_name($this->title);
 
             $product->set_description($this->description);
             $product->set_regular_price($this->price);
+            $product->set_sale_price($this->sale);
 
             $attributes = [];
             if (!empty($this->colors)) {
@@ -197,11 +201,13 @@ class Product
     {
         foreach ($this->variations as $variant) {
 
-            if (!empty($product_id =  wc_get_product_id_by_sku($variant['sku']))) {
-                $variation = wc_get_product($product_id);
+            if (
+                !empty($var_id = wc_get_product_id_by_sku($variant['sku']))
+                && ($variation = wc_get_product($var_id)) instanceof \WC_Product_Variation
+            ) {
             } else {
                 $variation = new \WC_Product_Variation();
-                $product->set_sku($variant['sku']);
+                $variation->set_sku($variant['sku']);
             }
 
             $variation->set_parent_id($product->get_id());
