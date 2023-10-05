@@ -183,6 +183,56 @@ class Product
             $product->set_attributes($attributes);
 
             $product->save();
+
+            if (!empty($this->tags)) {
+                wp_set_post_terms($product->get_id(), $this->tags, 'product_tag');
+            }
+
+            $this->setWooVariations($product);
+        }
+    }
+
+
+    protected function setWooVariations($product)
+    {
+        foreach ($this->variations as $variant) {
+
+            if (!empty($product_id =  wc_get_product_id_by_sku($variant['sku']))) {
+                $variation = wc_get_product($product_id);
+            } else {
+                $variation = new \WC_Product_Variation();
+                $product->set_sku($variant['sku']);
+            }
+
+            $variation->set_parent_id($product->get_id());
+            $variation->set_regular_price($variant['price']);
+            $variation->set_sale_price($variant['sale']);
+
+            // $variation->set_stock_quantity();
+            $variation_attributes = array();
+
+            if (!empty($variant['color'])) {
+
+                $taxonomy_name = 'pa_' . sanitize_title('color');
+                $term = get_term_by('name', $variant['color'], $taxonomy_name);
+
+                if ($term) {
+                    $variation_attributes[$taxonomy_name] = $term->slug;
+                }
+            }
+            if (!empty($variant['size'])) {
+
+                $taxonomy_name = 'pa_' . sanitize_title('size');
+                $term = get_term_by('name', $variant['size'], $taxonomy_name);
+
+                if ($term instanceof \WP_Term) {
+                    $variation_attributes[$taxonomy_name] = $term->slug;
+                }
+            }
+
+            $variation->set_attributes($variation_attributes);
+
+            $variation->save();
         }
     }
 
@@ -202,14 +252,6 @@ class Product
                 'has_archives' => true,
             ));
         }
-        // foreach ($values as $val) {
-
-        //     $insert_res = wp_insert_term(
-        //         $val,
-        //         'pa_' . $name,
-        //     );
-        // }
-
 
         $attribute = new \WC_Product_Attribute();
 
